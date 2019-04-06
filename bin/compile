@@ -3,7 +3,9 @@
 
 # Generates an SSH config file for connections if a config var exists.
 
+BUILD_DIR=$1
 ENV_DIR=$3
+BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd) # Buildpack dir is not build dir. See https://github.com/heroku/heroku-buildpack-clojure/pull/66 for more details
 
 if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
 
@@ -33,6 +35,14 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
             >> ~/.ssh/config
     ssh-keyscan -H -t rsa $element >> ~/.ssh/known_hosts
   done
+  
+  # Add the key to ssh agent
+  eval "$(ssh-agent -s)"
+  echo "#!/usr/bin/env bash" >> $BP_DIR/export
+  echo "echo \"-----> Retrieving ssh-agent environment variables...\"" >> $BP_DIR/export
+  echo "export SSH_AGENT_PID=\"$SSH_AGENT_PID\"" >> $BP_DIR/export
+  echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"" >> $BP_DIR/export
+  ssh-add ~/.ssh/custom_key
 
   echo "-----> Successfully added custom SSH key"
 
