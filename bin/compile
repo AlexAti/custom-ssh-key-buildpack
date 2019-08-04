@@ -25,18 +25,28 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   chmod 400 ~/.ssh/custom_key
 
   # Split $CUSTOM_SSH_KEY_HOSTS
-  IFS=',' ;for element in `cat $ENV_DIR/CUSTOM_SSH_KEY_HOSTS`;
+  IFS=',' ;
+  for element in `cat $ENV_DIR/CUSTOM_SSH_KEY_HOSTS`;
   do
+    # Forcing ONLY rsa as algorithm, as currently jgit cant deal with other things
+    if test -f "~/.ssh/known_hosts"; then
+      echo "WARNING! Forcing RSA for $element as algorithum so jgit works. IS THIS STILL NECESSARY?";
+      ssh-keygen -R $element ;
+    fi
+
     echo -e "Host $element\n"\
             "  IdentityFile ~/.ssh/custom_key\n"\
             "  IdentitiesOnly yes\n"\
             "  HostKeyAlgorithms ssh-rsa"\
             "  UserKnownHostsFile=~/.ssh/known_hosts\n"\
             "  StrictHostKeyChecking=yes"\
-            >> ~/.ssh/config
-    ssh-keyscan -H -t rsa $element >> ~/.ssh/known_hosts
+            >> ~/.ssh/config ;
+    ssh-keyscan -H -t rsa $element >> ~/.ssh/known_hosts ;
+
+    ssh -T git@$element ;
+
   done
-  
+
   # Add the key to ssh agent
   eval "$(ssh-agent -s)"
   echo "#!/usr/bin/env bash" >> $BP_DIR/export
