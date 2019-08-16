@@ -55,6 +55,12 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"" >> $BP_DIR/export
   ssh-add ~/.ssh/custom_key
 
+  echo "---------------"
+  cat /app/.ssh/config
+  echo "---------------"
+  cat /app/.ssh/known_hosts
+  echo "---------------"
+
   echo "-----> Successfully added custom SSH key"
 
 fi
