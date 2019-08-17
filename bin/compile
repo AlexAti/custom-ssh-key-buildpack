@@ -4,6 +4,7 @@
 # Generates an SSH config file for connections if a config var exists.
 
 BUILD_DIR=$1
+CACHE_DIR=$2
 ENV_DIR=$3
 BP_DIR=$(cd "$(dirname "${0:-}")"; cd ..; pwd) # Buildpack dir is not build dir. See https://github.com/heroku/heroku-buildpack-clojure/pull/66 for more details
 
@@ -55,11 +56,19 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"" >> $BP_DIR/export
   ssh-add ~/.ssh/custom_key
 
-  echo "---------------"
-  cat /app/.ssh/config
-  echo "---------------"
-  cat /app/.ssh/known_hosts
-  echo "---------------"
+  # Pass .ssh configuration to next buildpack
+  cp ~/.ssh/config $CACHE_DIR/sshconfig
+  cp ~/.ssh/known_hosts $CACHE_DIR/sshknownhosts
+  echo "cp $CACHE_DIR/sshconfig ~/.ssh/config" >> $BP_DIR/export
+  echo "cp $CACHE_DIR/sshknownhosts ~/.ssh/known_hosts" >> $BP_DIR/export
+  echo "rm $CACHE_DIR/sshconfig" >> $BP_DIR/export
+  echo "rm $CACHE_DIR/sshknownhosts" >> $BP_DIR/export
+
+  echo "echo \"---------------\""  >> $BP_DIR/export
+  echo "cat /app/.ssh/config"      >> $BP_DIR/export
+  echo "echo \"---------------\""  >> $BP_DIR/export
+  echo "cat /app/.ssh/known_hosts" >> $BP_DIR/export
+  echo "echo \"---------------\""  >> $BP_DIR/export
 
   echo "-----> Successfully added custom SSH key"
 
