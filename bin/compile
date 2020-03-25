@@ -59,7 +59,13 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   echo "export SSH_AGENT_PID=\"$SSH_AGENT_PID\"" >> $BP_DIR/export
   echo "export SSH_AUTH_SOCK=\"$SSH_AUTH_SOCK\"" >> $BP_DIR/export
   ssh-add ~/.ssh/custom_key
-
+  
+  # Ensure connections are possible
+  for element in `cat $ENV_DIR/CUSTOM_SSH_KEY_HOSTS`;
+  do
+    ssh -T git@$element ;
+  done
+  
   # Pass .ssh configuration to next buildpack
   cp ~/.ssh/config $CACHE_DIR/sshconfig
   cp ~/.ssh/known_hosts $CACHE_DIR/sshknownhosts
@@ -72,6 +78,9 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   echo "cat /app/.ssh/config"      >> $BP_DIR/export
   echo "echo \"---------------\""  >> $BP_DIR/export
   echo "cat /app/.ssh/known_hosts" >> $BP_DIR/export
+  echo "echo \"---------------\""  >> $BP_DIR/export
+  
+  
   echo "echo \"---------------\""  >> $BP_DIR/export
 
   echo "-----> Successfully added custom SSH key"
