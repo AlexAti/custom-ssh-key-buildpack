@@ -45,6 +45,7 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
     echo "tres";
     ssh-keyscan -t rsa $element >> ~/.ssh/known_hosts ;
     echo "cuatro";
+    ssh-add ~/.ssh/custom_key
     echo "In";
     ssh -T git@$element ;
     echo "out";
