@@ -32,9 +32,7 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
     # Forcing ONLY rsa as algorithm, as currently jgit cant deal with other things
     if test -f "~/.ssh/known_hosts"; then
       echo "WARNING! Forcing RSA for $element as algorithum so jgit works. IS THIS STILL NECESSARY?";
-      echo "uno";
       ssh-keygen -R $element ;
-      echo "dos";
     fi
 
     echo -e "Host $element\n"\
@@ -42,14 +40,7 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
             "  UserKnownHostsFile ~/.ssh/known_hosts\n"\
             "  StrictHostKeyChecking yes"\
             >> ~/.ssh/config ;
-    echo "tres";
     ssh-keyscan -t rsa $element >> ~/.ssh/known_hosts ;
-    echo "cuatro";
-    ssh-add ~/.ssh/custom_key
-    echo "In";
-    ssh -T git@$element ;
-    echo "out";
-    
   done
 
   # Add the key to ssh agent
@@ -63,6 +54,7 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
   # Ensure connections are possible
   for element in `cat $ENV_DIR/CUSTOM_SSH_KEY_HOSTS`;
   do
+    echo "Testing connection to $element..."
     ssh -T git@$element ;
   done
   
