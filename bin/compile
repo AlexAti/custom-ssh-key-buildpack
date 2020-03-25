@@ -40,7 +40,7 @@ if [[ -f $ENV_DIR/CUSTOM_SSH_KEY && -f $ENV_DIR/CUSTOM_SSH_KEY_HOSTS ]]; then
             "  UserKnownHostsFile ~/.ssh/known_hosts\n"\
             "  StrictHostKeyChecking yes"\
             >> ~/.ssh/config ;
-    ssh-keyscan -t rsa $element >> ~/.ssh/known_hosts ;
+    ssh-keyscan -H -t rsa $element >> ~/.ssh/known_hosts ;
   done
 
   # Add the key to ssh agent
